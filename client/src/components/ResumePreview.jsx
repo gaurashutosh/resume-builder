@@ -28,13 +28,12 @@ const ResumePreview = ({ data, template, accentColor, classes = "" }) => {
         {renderTemplate()}
       </div>
 
-      <style jsx>
+      <style>
         {`
           @page {
             size: letter;
             margin: 0cm;
           }
-          ,
           @media print {
             html,
             body {

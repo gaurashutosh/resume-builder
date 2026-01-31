@@ -3,6 +3,7 @@ import React from 'react'
 import { Trash } from 'lucide-react'
 
 
+
 const ExperienceForm = ({data,onChange}) => {
 
     const addExperience = () => {
@@ -50,7 +51,7 @@ const ExperienceForm = ({data,onChange}) => {
                 <p className='text-sm'>Click Add Experience to get started</p>
             </div>
         ) : (
-            <div>
+            <div className="space-y-4 mt-6">
                 {data.map((experience,index)=>(
                     <div className='p-4 border border-gray-200 rounded-lg space-y-3' key={index}>
                         <div className='flex justify-between items-start'>
