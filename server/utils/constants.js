@@ -1,6 +1,8 @@
-export const DB_NAME = "resume-builder";
+const DB_NAME = "resume-builder";
 
-export const options = {
+const options = {
     httpOnly: true,
     secure: true,
 };
+
+export { DB_NAME, options };

@@ -1,7 +1,8 @@
-
+import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
+
 //jwt.verify always returns id not _id
 
 export const verifyJWT = asyncHandler(async (req, res, next) => {
