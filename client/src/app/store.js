@@ -1,10 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
-import resumeReducer from "../features/resume/resumeSlice";
+import authReducer from "../features/authSlice";
 
-const store = configureStore({
+export const store = configureStore({
     reducer: {
-        resume: resumeReducer,
+        auth: authReducer,
     },
 });
-
-export default store;

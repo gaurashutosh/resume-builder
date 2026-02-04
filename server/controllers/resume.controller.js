@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import imageKit from "../utils/imageKit.js";
 import fs from "fs";
 
+//get User Resumes
 const getUserResumes = asyncHandler(async (req, res) => {
   const userId = req.userId;
 
@@ -16,6 +17,7 @@ const getUserResumes = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, resumes, "Resumes fetched successfully"));
 });
 
+//create Resume
 const createResume = asyncHandler(async (req, res) => {
   const userId = req.userId;
   const { title } = req.body;
@@ -27,6 +29,7 @@ const createResume = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, newResume, "Resume created successfully"));
 });
 
+//delete Resume
 const deleteResume = asyncHandler(async (req, res) => {
   const { resumeId } = req.params;
   const userId = req.userId;
@@ -38,6 +41,7 @@ const deleteResume = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Resume deleted successfully"));
 });
 
+//get Resume By Id
 const getResumeById = asyncHandler(async (req, res) => {
   const { resumeId } = req.params;
   const userId = req.userId;
@@ -58,6 +62,7 @@ const getResumeById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, resume, "Resume fetched successfully"));
 });
 
+//get Public Resume By Id
 const getPublicResumeById = asyncHandler(async (req, res) => {
   const { resumeId } = req.params;
 
@@ -73,32 +78,31 @@ const getPublicResumeById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, resume, "Resume fetched successfully"));
 });
 
+//update Resume
 const updateResume = asyncHandler(async (req, res) => {
   const userId = req.userId;
-  const { resumeId, resumeData, removeBackground } = req.params;
+  const { resumeId, resumeData, removeBackground } = req.body;
   const image = req.file;
 
   let resumeDataCopy = JSON.parse(resumeData);
 
   if (image) {
-
-    const imageBufferData = fs.readFileSync(image.path);
+    const imageBufferData = fs.createReadStream(image.path);
 
     const response = await imageKit.files.upload({
       file: imageBufferData,
-      fileName: image.originalname,
+      fileName: "resume.png",
       folder: "user-resumes",
       transformation: {
         pre:
-          "w-300, h-300, focus:face,z-0.75" +
+          "w-300,h-300,fo-face,z-0.75" +
           (removeBackground ? ",e-bgremove" : ""),
       },
     });
 
     resumeDataCopy.personalInfo.image = response.url;
   }
-
-  const resume = await Resume.findByIdAndUpdate(
+  const resume = await Resume.findOneAndUpdate(
     { _id: resumeId, userId },
     resumeDataCopy,
     { new: true },
@@ -107,32 +111,6 @@ const updateResume = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, resume, "Saved Successfully"));
-
-  //update resume
-  const updatedResume = await Resume.findOneAndUpdate(
-    { _id: resumeId, userId },
-    {
-      title,
-      isPublic,
-      template,
-      accentColor,
-      professionalSummary,
-      skills,
-      personalInfo,
-      workExperience,
-      projects,
-      education,
-    },
-    { new: true },
-  );
-
-  if (!updatedResume) {
-    throw new ApiError(404, "Resume not found");
-  }
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, updatedResume, "Resume updated successfully"));
 });
 
 export {

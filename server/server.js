@@ -10,14 +10,14 @@ dotenv.config({ path: "./.env" });
 
 const app = express();
 
-connectDB();
+await connectDB();
 
 app.use(express.json());
 app.use(cors());
 
 //routes
 app.use("/api/v1/user", userRouter);
-app.use("/api/v1/resume", resumeRouter);
+app.use("/api/v1/resumes", resumeRouter);
 app.use("/api/v1/ai", aiRouter);
 
 app.get("/", (req, res) => {

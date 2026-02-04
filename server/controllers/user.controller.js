@@ -5,6 +5,13 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken";
 import { options } from "../utils/constants.js";
 
+const generateToken = (userId) => {
+  const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRY,
+  });
+  return token;
+};
+
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -23,22 +30,15 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Something went wrong while registering user!");
   }
 
+  const token = generateToken(user._id);
+  user.password = undefined;
+
   res
     .status(201)
-    .json(new ApiResponse(201, user, "User registered successfully"));
+    .json(
+      new ApiResponse(201, { user, token }, "User registered successfully"),
+    );
 });
-
-const generateAccessToken = async (userId) => {
-  return jwt.sign({ _id: userId }, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
-  });
-};
-
-const generateRefreshToken = async (userId) => {
-  return jwt.sign({ _id: userId }, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
-  });
-};
 
 //userLogin
 
@@ -54,27 +54,20 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid email or password");
   }
 
-  const isPasswordCorrect = await user.isPasswordCorrect(password);
-  if (!isPasswordCorrect) {
+  if (!user.comparePassword(password)) {
     throw new ApiError(400, "Invalid email or password");
   }
 
-  const accessToken = await generateAccessToken(user._id);
-  const refreshToken = await generateRefreshToken(user._id);
+  const token = generateToken(user._id);
+  user.password = undefined;
 
   return res
     .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
-    .json(
-      new ApiResponse(
-        200,
-        { user, accessToken, refreshToken },
-        "User logged in successfully",
-      ),
-    );
+    .json(new ApiResponse(200, { user, token }, "User logged in successfully"));
 });
 
+
+//getUserById
 const getUserById = asyncHandler(async (req, res) => {
   const userId = req.userId;
 
@@ -83,13 +76,8 @@ const getUserById = asyncHandler(async (req, res) => {
   if (!user) {
     throw new ApiError(404, "User not found");
   }
-  res.status(200).json(new ApiResponse(200, user, "User fetched successfully"));
+  user.password = undefined;
+  res.status(200).json(new ApiResponse(200, {user}, "User fetched successfully"));
 });
 
-export {
-  registerUser,
-  generateAccessToken,
-  generateRefreshToken,
-  loginUser,
-  getUserById,
-};
+export { registerUser, loginUser, getUserById  };

@@ -3,67 +3,63 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { Resume } from "../models/resume.model.js";
-import ai from "../utils/ai.js";
+import {ai} from "../utils/ai.js";
 
 const enhanceProfessionalSummary = asyncHandler(async (req, res) => {
-  const { professionalSummary } = req.body;
-  if (!professionalSummary?.trim()) {
-    throw new ApiError(400, "Professional summary is required");
+  const { userContent } = req.body;
+  if (!userContent) {
+    throw new ApiError(400, "User content is required");
   }
-  const response = await ai.models.generateContent({
+  const response = await ai.chat.completions.create({
     model: process.env.GEMINI_MODEL,
-    contents: `Enhance this professional summary as in you are a professional resume writer in 1-2 sentences also highlight the key skills, experience and career goals. Make it compelling and ATS friendly and only return text no option or anything else: ${professionalSummary}`,
+    messages: [
+      {
+        role: "system",
+        content:
+          "You are a professional resume writer. Your task is to enhance the professional summary of the user in 1-2 sentences also highlight the key skills, experience and career goals. Make it compelling and ATS friendly and only return text no option or anything else",
+      },
+      { role: "user", content: userContent },
+    ],
   });
-  const enhancedSummary = response.text;
-  console.log(enhancedSummary);
-  if (!enhancedSummary) {
-    throw new ApiError(400, "Professional summary enhancement failed");
-  }
-  res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        enhancedSummary,
-        "Professional summary enhanced successfully",
-      ),
-    );
+  const enhancedContent = response.choices[0].message.content;
+  return res.status(200).json({ enhancedContent });
 });
 
 const enhanceJobDescription = asyncHandler(async (req, res) => {
-  const { jobDescription } = req.body;
-  if (!jobDescription?.trim()) {
-    throw new ApiError(400, "Job description is required");
+  const { userContent } = req.body;
+  if (!userContent) {
+    throw new ApiError(400, "User content is required");
   }
-  const response = await ai.models.generateContent({
+  const response = await ai.chat.completions.create({
     model: process.env.GEMINI_MODEL,
-    contents: `Enhance this job description as in you are a professional resume writer in 1-2 sentences also highlight the key skills, experience and career goals. Make it compelling and ATS friendly and only return text no option or anything else: ${jobDescription}`,
+    messages: [
+      {
+        role: "system",
+        content:
+          "You are an expert in resume writing. Your task is to enhance the job description of a resume. The job description should be in 1-2 sentences also highlighting key responsibilities and achievements. Use action verbs and quantifiable result where possible. Make it ATS friendly and only return text no option or anything else",
+      },
+      { role: "user", content: userContent },
+    ],
   });
-  const enhancedJobDescription = response.text;
-  console.log(enhancedJobDescription);
-  if (!enhancedJobDescription) {
-    throw new ApiError(400, "Job description enhancement failed");
-  }
-  res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        enhancedJobDescription,
-        "Job description enhanced successfully",
-      ),
-    );
+
+  const enhancedContent = response.choices[0].message.content;
+  return res.status(200).json({ enhancedContent });
 });
 
 const uploadResume = asyncHandler(async (req, res) => {
   const { resumeText, title } = req.body;
   const userId = req.userId;
+
   if (!resumeText) {
-    throw new ApiError(400, "Resume is required");
+    throw new ApiError(400, "Missing resume fields...");
   }
 
-  const systemPrompt = `You are a professional resume writer. Your task is to extract the information from the resume text provided by the user and create a structured JSON object with the following fields:
-    professionalSummary: {
+  const systemPrompt =
+    "You are an expert AI Agent to extract data from resume.";
+  const userPrompt = `Extract data from this resume: ${resumeText} 
+  Provide data in the following JSON format with no additional text before and after:
+  {
+  professionalSummary: {
     type: String,
     default: "",
   },
@@ -81,10 +77,6 @@ const uploadResume = asyncHandler(async (req, res) => {
       type: String,
       default: "",
     },
-    profession: {
-      type: String,
-      default: "",
-    },
     email: {
       type: String,
       default: "",
@@ -94,6 +86,10 @@ const uploadResume = asyncHandler(async (req, res) => {
       default: "",
     },
     location: {
+      type: String,
+      default: "",
+    },
+    profession: {
       type: String,
       default: "",
     },
@@ -175,61 +171,33 @@ const uploadResume = asyncHandler(async (req, res) => {
       gpa:{
         type:String,
         default:"",
-      },
-      
+      },  
     }
   ]
-}
-    
-    Return only the JSON object, without any additional text or explanation before or after.`;
+    }
+  
+  `;
 
-  const userPrompt = `Here is the resume text:
-    ${resumeText}
-    
-    Please extract the information and return the JSON object as specified.`;
-  const response = await ai.models.generateContent({
+  const response = await ai.chat.completions.create({
     model: process.env.GEMINI_MODEL,
-    contents: [
+    messages: [
       {
         role: "system",
-        parts: [
-          {
-            text: systemPrompt,
-          },
-        ],
+        content: systemPrompt,
       },
       {
         role: "user",
-        parts: [
-          {
-            text: userPrompt,
-          },
-        ],
+        content: userPrompt,
       },
     ],
-    responseFormat: { type: "json_object" },
+    response_format: { type: "json_object" },
   });
-  const extractedData = response.text;
-  const parseData = JSON.parse(extractedData);
-  console.log(parseData);
 
-  const newResume = await Resume.create({
-    userId,
-    title,
-    ...parseData,
-  });
-  if (!newResume) {
-    throw new ApiError(400, "Resume upload failed");
-  }
-  res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        { resumeId: newResume._id },
-        "Resume uploaded successfully",
-      ),
-    );
+  const extractedData = response.choices[0].message.content;
+  const parsedData = JSON.parse(extractedData);
+  const newResume = await Resume.create({ userId, title, ...parsedData });
+
+  res.json({ resumeId: newResume._id });
 });
 
 export { enhanceProfessionalSummary, enhanceJobDescription, uploadResume };

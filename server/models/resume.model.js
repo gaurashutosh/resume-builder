@@ -40,10 +40,6 @@ const resumeSchema = new mongoose.Schema({
       type: String,
       default: "",
     },
-    profession: {
-      type: String,
-      default: "",
-    },
     email: {
       type: String,
       default: "",
@@ -53,6 +49,10 @@ const resumeSchema = new mongoose.Schema({
       default: "",
     },
     location: {
+      type: String,
+      default: "",
+    },
+    profession: {
       type: String,
       default: "",
     },

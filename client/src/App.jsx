@@ -18,10 +18,12 @@ function App() {
         </Route>
 
         <Route path="view/:resumeId" element={<Preview />} />
-        <Route path="login" element={<Login />} />
+        {/* <Route path="login" element={<Login />} /> */}
       </Routes>
     </>
   );
 }
+
+// 7:54:35
 
 export default App;
