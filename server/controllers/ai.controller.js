@@ -3,7 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { Resume } from "../models/resume.model.js";
-import {ai} from "../utils/ai.js";
+import { ai } from "../utils/ai.js";
 
 const enhanceProfessionalSummary = asyncHandler(async (req, res) => {
   const { userContent } = req.body;
@@ -22,7 +22,15 @@ const enhanceProfessionalSummary = asyncHandler(async (req, res) => {
     ],
   });
   const enhancedContent = response.choices[0].message.content;
-  return res.status(200).json({ enhancedContent });
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { enhancedContent },
+        "Summary enhanced successfully",
+      ),
+    );
 });
 
 const enhanceJobDescription = asyncHandler(async (req, res) => {
@@ -43,7 +51,15 @@ const enhanceJobDescription = asyncHandler(async (req, res) => {
   });
 
   const enhancedContent = response.choices[0].message.content;
-  return res.status(200).json({ enhancedContent });
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { enhancedContent },
+        "Job description enhanced successfully",
+      ),
+    );
 });
 
 const uploadResume = asyncHandler(async (req, res) => {
@@ -68,7 +84,7 @@ const uploadResume = asyncHandler(async (req, res) => {
     default: [],
   },
 
-  personalInfo: {
+  personal_info: {
     image: {
       type: String,
       default: "",

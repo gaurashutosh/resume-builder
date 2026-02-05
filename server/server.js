@@ -13,19 +13,25 @@ const app = express();
 await connectDB();
 
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "*",
+    credentials: true,
+  }),
+);
+app.use(express.urlencoded({ extended: true }));
 
 //routes
-app.use("/api/v1/user", userRouter);
-app.use("/api/v1/resumes", resumeRouter);
-app.use("/api/v1/ai", aiRouter);
+app.use("/api/users", userRouter);
+app.use("/api/resumes", resumeRouter);
+app.use("/api/ai", aiRouter);
 
 app.get("/", (req, res) => {
-    res.send("Server is running");
+  res.send("Server is running");
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port http://localhost:${PORT}`);
+  console.log(`Server is running on port http://localhost:${PORT}`);
 });

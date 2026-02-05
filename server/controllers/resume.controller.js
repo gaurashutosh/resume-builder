@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { Resume } from "../models/resume.model.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import imageKit from "../utils/imageKit.js";
+import { ApiError } from "../utils/apiError.js";
 import fs from "fs";
 
 //get User Resumes
@@ -26,7 +27,13 @@ const createResume = asyncHandler(async (req, res) => {
   const newResume = await Resume.create({ userId, title });
   return res
     .status(201)
-    .json(new ApiResponse(201, newResume, "Resume created successfully"));
+    .json(
+      new ApiResponse(
+        201,
+        { resume: newResume },
+        "Resume created successfully",
+      ),
+    );
 });
 
 //delete Resume
@@ -59,7 +66,7 @@ const getResumeById = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, resume, "Resume fetched successfully"));
+    .json(new ApiResponse(200, { resume }, "Resume fetched successfully"));
 });
 
 //get Public Resume By Id
@@ -67,7 +74,7 @@ const getPublicResumeById = asyncHandler(async (req, res) => {
   const { resumeId } = req.params;
 
   //retrieve resume by id
-  const resume = await Resume.findOne({ _id: resumeId, isPublic: true });
+  const resume = await Resume.findOne({ _id: resumeId, public: true });
 
   if (!resume) {
     throw new ApiError(404, "Resume not found");
@@ -75,42 +82,102 @@ const getPublicResumeById = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, resume, "Resume fetched successfully"));
+    .json(new ApiResponse(200, { resume }, "Resume fetched successfully"));
 });
 
 //update Resume
 const updateResume = asyncHandler(async (req, res) => {
   const userId = req.userId;
-  const { resumeId, resumeData, removeBackground } = req.body;
+  const { resumeId } = req.params;
+  const { resumeData, removeBackground, title } = req.body;
   const image = req.file;
 
-  let resumeDataCopy = JSON.parse(resumeData);
+  let updatePayload = {};
 
+  // Case 1: title update
+  if (title) {
+    updatePayload.title = title;
+  }
+
+  // Case 2: full resume update
+  if (resumeData) {
+    if (typeof resumeData === "string") {
+      try {
+        updatePayload = { ...updatePayload, ...JSON.parse(resumeData) };
+      } catch (err) {
+        throw new ApiError(400, "Invalid resume data format");
+      }
+    } else {
+      updatePayload = { ...updatePayload, ...resumeData };
+    }
+  }
+
+  // Image upload handling
   if (image) {
+    console.log("=== IMAGE UPLOAD START ===");
+    console.log("File path:", image.path);
+    console.log("removeBackground parameter:", removeBackground);
+
     const imageBufferData = fs.createReadStream(image.path);
 
+    // Upload the original image first
     const response = await imageKit.files.upload({
       file: imageBufferData,
-      fileName: "resume.png",
+      fileName: `resume-${Date.now()}.png`,
       folder: "user-resumes",
-      transformation: {
-        pre:
-          "w-300,h-300,fo-face,z-0.75" +
-          (removeBackground ? ",e-bgremove" : ""),
-      },
     });
 
-    resumeDataCopy.personalInfo.image = response.url;
+    console.log("ImageKit Upload Success. Original URL:", response.url);
+
+    // Apply transformations via URL
+    // ImageKit URL format: https://ik.imagekit.io/<your_id>/path/to/image.png
+    // With transformation: https://ik.imagekit.io/<your_id>/tr:w-400,h-400,fo-auto,e-remove-bg/path/to/image.png
+    let finalUrl = response.url;
+
+    // Build transformation string
+    let transformations = "tr:w-400,h-400,fo-auto";
+    if (removeBackground === "yes") {
+      transformations += ",e-remove-bg";
+      console.log("Background removal transformation applied");
+    }
+
+    // Insert transformation into URL
+    // URL structure: https://ik.imagekit.io/ID/folder/file.png
+    // Need to insert tr:... after the ID part
+    const urlParts = response.url.split("/user-resumes/");
+    if (urlParts.length === 2) {
+      finalUrl =
+        urlParts[0] + "/" + transformations + "/user-resumes/" + urlParts[1];
+    }
+
+    console.log("Final URL with transformations:", finalUrl);
+
+    // Ensure personal_info exists
+    if (!updatePayload.personal_info) {
+      updatePayload.personal_info = {};
+    }
+    updatePayload.personal_info.image = finalUrl;
+    console.log("=== IMAGE UPLOAD END ===");
   }
+
+  console.log(
+    "Updating Resume with Payload:",
+    JSON.stringify(updatePayload, null, 2),
+  );
+
   const resume = await Resume.findOneAndUpdate(
     { _id: resumeId, userId },
-    resumeDataCopy,
+    updatePayload,
     { new: true },
   );
 
+  if (!resume) {
+    throw new ApiError(404, "Resume not found");
+  }
+
   return res
     .status(200)
-    .json(new ApiResponse(200, resume, "Saved Successfully"));
+    .json(new ApiResponse(200, { resume }, "Resume saved successfully"));
 });
 
 export {

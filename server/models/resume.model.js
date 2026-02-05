@@ -1,143 +1,145 @@
 import mongoose from "mongoose";
 
-const resumeSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  title: {
-    type: String,
-    default: "Untitled Resume",
-  },
-  isPublic: {
-    type: Boolean,
-    default: false,
-  },
-  template: {
-    type: String,
-    default: "classic",
-  },
-  accentColor: {
-    type: String,
-    default: "#3B82F6",
-  },
-  professionalSummary: {
-    type: String,
-    default: "",
-  },
-  skills: {
-    type: [String],
-    default: [],
-  },
+const resumeSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    title: {
+      type: String,
+      default: "Untitled Resume",
+    },
+    public: {
+      type: Boolean,
+      default: false,
+    },
+    template: {
+      type: String,
+      default: "classic",
+    },
+    accent_color: {
+      type: String,
+      default: "#3B82F6",
+    },
+    professional_summary: {
+      type: String,
+      default: "",
+    },
+    skills: {
+      type: [String],
+      default: [],
+    },
 
-  personalInfo: {
-    image: {
-      type: String,
-      default: "",
+    personal_info: {
+      image: {
+        type: String,
+        default: "",
+      },
+      full_name: {
+        type: String,
+        default: "",
+      },
+      email: {
+        type: String,
+        default: "",
+      },
+      phone: {
+        type: String,
+        default: "",
+      },
+      location: {
+        type: String,
+        default: "",
+      },
+      profession: {
+        type: String,
+        default: "",
+      },
+      linkedin: {
+        type: String,
+        default: "",
+      },
+      github: {
+        type: String,
+        default: "",
+      },
+      website: {
+        type: String,
+        default: "",
+      },
     },
-    fullName: {
-      type: String,
-      default: "",
-    },
-    email: {
-      type: String,
-      default: "",
-    },
-    phone: {
-      type: String,
-      default: "",
-    },
-    location: {
-      type: String,
-      default: "",
-    },
-    profession: {
-      type: String,
-      default: "",
-    },
-    linkedIn: {
-      type: String,
-      default: "",
-    },
-    gitHub: {
-      type: String,
-      default: "",
-    },
-    portfolioWebsite: {
-      type: String,
-      default: "",
-    },
+    experience: [
+      {
+        company: {
+          type: String,
+          default: "",
+        },
+        position: {
+          type: String,
+          default: "",
+        },
+        start_date: {
+          type: String,
+          default: "",
+        },
+        end_date: {
+          type: String,
+          default: "",
+        },
+        description: {
+          type: String,
+          default: "",
+        },
+        is_current: {
+          type: Boolean,
+          default: false,
+        },
+      },
+    ],
+    projects: [
+      {
+        name: {
+          type: String,
+          default: "",
+        },
+        type: {
+          type: String,
+          default: "",
+        },
+        description: {
+          type: String,
+          default: "",
+        },
+      },
+    ],
+    education: [
+      {
+        institute: {
+          type: String,
+          default: "",
+        },
+        degree: {
+          type: String,
+          default: "",
+        },
+        field_of_study: {
+          type: String,
+          default: "",
+        },
+        graduation_date: {
+          type: String,
+          default: "",
+        },
+        gpa: {
+          type: String,
+          default: "",
+        },
+      },
+    ],
   },
-  workExperience: [
-    {
-      company: {
-        type: String,
-        default: "",
-      },
-      position: {
-        type: String,
-        default: "",
-      },
-      startDate: {
-        type: Date,
-        default: Date.now,
-      },
-      endDate: {
-        type: Date,
-        default: Date.now,
-      },
-      description: {
-        type: String,
-        default: "",
-      },
-      isCurrentJob: {
-        type: Boolean,
-        default: false,
-      },
-    },
-  ],
-  projects: [
-    {
-      name: {
-        type: String,
-        default: "",
-      },
-      type: {
-        type: String,
-        default: "",
-      },
-      description: {
-        type: String,
-        default: "",
-      },
-    },
-  ],
-  education:[
-    {
-      institution:{
-        type:String,
-        default:"",
-      },
-      degree:{
-        type:String,
-        default:"",
-      },
-      fieldOfStudy:{
-        type:String,
-        default:"",
-      },
-      gradutionDate:{
-        type:String,
-        default:"",
-      },
-      gpa:{
-        type:String,
-        default:"",
-      },
-      
-    }
-  ]
-},{timestamps:true, minimize:false});
+  { timestamps: true, minimize: false },
+);
 
 export const Resume = mongoose.model("Resume", resumeSchema);

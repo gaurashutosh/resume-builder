@@ -17,7 +17,23 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: function () {
+        // Password required only for non-Google users
+        return this.authProvider !== "google";
+      },
+    },
+    googleId: {
+      type: String,
+      sparse: true,
+    },
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
+    profilePicture: {
+      type: String,
+      default: "",
     },
   },
   { timestamps: true },
@@ -30,7 +46,7 @@ userSchema.pre("save", async function () {
 });
 
 userSchema.methods.comparePassword = async function (password) {
-  return bcrypt.compareSync(password, this.password);
+  return await bcrypt.compare(password, this.password);
 };
 
 export const User = mongoose.model("User", userSchema);
