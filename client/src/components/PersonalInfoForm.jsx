@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   BriefcaseBusiness,
   User,
@@ -9,6 +10,11 @@ import {
   Globe,
   Sparkles,
 } from "lucide-react";
+import {
+  validatePersonalInfo,
+  stripNonPhone,
+  stripNumbers,
+} from "../utils/validation";
 
 const PersonalInfoForm = ({
   data,
@@ -16,8 +22,41 @@ const PersonalInfoForm = ({
   removeBackground,
   setRemoveBackground,
 }) => {
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
+  // Fields that should not contain numbers (text only)
+  const textOnlyFields = ["full_name", "location", "profession"];
+
   const handleChange = (field, value) => {
-    onChange({ ...data, [field]: value });
+    let filteredValue = value;
+
+    // Filter numbers from text-only fields
+    if (textOnlyFields.includes(field)) {
+      filteredValue = stripNumbers(value);
+    }
+    // Filter phone input to only allow valid phone characters
+    else if (field === "phone") {
+      filteredValue = stripNonPhone(value);
+    }
+
+    onChange({ ...data, [field]: filteredValue });
+
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const handleBlur = (field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    const validationErrors = validatePersonalInfo({
+      ...data,
+      [field]: data[field],
+    });
+    if (validationErrors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: validationErrors[field] }));
+    }
   };
 
   const fields = [
@@ -122,6 +161,7 @@ const PersonalInfoForm = ({
       </div>
       {fields.map((field) => {
         const Icon = field.icon;
+        const hasError = touched[field.key] && errors[field.key];
         return (
           <div key={field.key} className="space-y-1 mt-5">
             <label className="flex items-center gap-2 text-sm font-medium text-gray-600">
@@ -133,10 +173,17 @@ const PersonalInfoForm = ({
               type={field.type}
               value={data[field.key] || ""}
               onChange={(e) => handleChange(field.key, e.target.value)}
-              className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm"
+              onBlur={() => handleBlur(field.key)}
+              className={`mt-1 w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm ${
+                hasError
+                  ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                  : "border-gray-300"
+              }`}
               placeholder={`Enter your ${field.label.toLowerCase()}`}
-              required={field.required}
             />
+            {hasError && (
+              <p className="text-red-500 text-xs mt-1">{errors[field.key]}</p>
+            )}
           </div>
         );
       })}

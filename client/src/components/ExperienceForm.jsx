@@ -1,13 +1,15 @@
-import { Plus, Sparkles, Briefcase, Loader2 } from "lucide-react";
-import React, { useState } from "react";
-import { Trash } from "lucide-react";
+import { useState } from "react";
+import { Plus, Sparkles, Briefcase, Loader2, Trash } from "lucide-react";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import api from "../configs/api.js";
+import { validateExperience } from "../utils/validation";
 
 const ExperienceForm = ({ data, onChange }) => {
   const { token } = useSelector((state) => state.auth);
   const [enhancingIndex, setEnhancingIndex] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
   const addExperience = () => {
     const newExperience = {
@@ -19,6 +21,8 @@ const ExperienceForm = ({ data, onChange }) => {
       is_current: false,
     };
     onChange([...data, newExperience]);
+    setErrors({});
+    setTouched({});
   };
 
   const removeExperience = (index) => {
@@ -30,6 +34,37 @@ const ExperienceForm = ({ data, onChange }) => {
     const updated = [...data];
     updated[index] = { ...updated[index], [field]: value };
     onChange(updated);
+
+    const errorKey = `${index}-${field}`;
+    if (errors[errorKey]) {
+      setErrors((prev) => ({ ...prev, [errorKey]: "" }));
+    }
+  };
+
+  const handleBlur = (index, field) => {
+    const errorKey = `${index}-${field}`;
+    setTouched((prev) => ({ ...prev, [errorKey]: true }));
+
+    const validationErrors = validateExperience(data[index]);
+    if (validationErrors[field]) {
+      setErrors((prev) => ({ ...prev, [errorKey]: validationErrors[field] }));
+    }
+  };
+
+  const getInputClassName = (index, field) => {
+    const errorKey = `${index}-${field}`;
+    const hasError = touched[errorKey] && errors[errorKey];
+    return `px-3 py-2 text-sm rounded-lg border outline-none focus:ring focus:ring-blue-500 ${
+      hasError ? "border-red-500 focus:ring-red-500" : "border-gray-300"
+    }`;
+  };
+
+  const renderError = (index, field) => {
+    const errorKey = `${index}-${field}`;
+    if (touched[errorKey] && errors[errorKey]) {
+      return <p className="text-red-500 text-xs mt-1">{errors[errorKey]}</p>;
+    }
+    return null;
   };
 
   const enhanceDescription = async (index) => {
@@ -107,44 +142,60 @@ const ExperienceForm = ({ data, onChange }) => {
                 </button>
               </div>
               <div className="grid md:grid-cols-2 gap-3">
-                <input
-                  type="text"
-                  value={experience.company || ""}
-                  onChange={(e) =>
-                    updateExperience(index, "company", e.target.value)
-                  }
-                  className="px-3 py-2 text-sm rounded-lg"
-                  placeholder="Company Name"
-                />
+                <div>
+                  <input
+                    type="text"
+                    value={experience.company || ""}
+                    onChange={(e) =>
+                      updateExperience(index, "company", e.target.value)
+                    }
+                    onBlur={() => handleBlur(index, "company")}
+                    className={getInputClassName(index, "company")}
+                    placeholder="Company Name *"
+                  />
+                  {renderError(index, "company")}
+                </div>
 
-                <input
-                  type="text"
-                  value={experience.position || ""}
-                  onChange={(e) =>
-                    updateExperience(index, "position", e.target.value)
-                  }
-                  className="px-3 py-2 text-sm rounded-lg"
-                  placeholder="Job Title"
-                />
+                <div>
+                  <input
+                    type="text"
+                    value={experience.position || ""}
+                    onChange={(e) =>
+                      updateExperience(index, "position", e.target.value)
+                    }
+                    onBlur={() => handleBlur(index, "position")}
+                    className={getInputClassName(index, "position")}
+                    placeholder="Job Title *"
+                  />
+                  {renderError(index, "position")}
+                </div>
 
-                <input
-                  type="month"
-                  value={experience.start_date || ""}
-                  onChange={(e) =>
-                    updateExperience(index, "start_date", e.target.value)
-                  }
-                  className="px-3 py-2 text-sm rounded-lg"
-                />
+                <div>
+                  <input
+                    type="month"
+                    value={experience.start_date || ""}
+                    onChange={(e) =>
+                      updateExperience(index, "start_date", e.target.value)
+                    }
+                    onBlur={() => handleBlur(index, "start_date")}
+                    className={getInputClassName(index, "start_date")}
+                  />
+                  {renderError(index, "start_date")}
+                </div>
 
-                <input
-                  type="month"
-                  value={experience.end_date || ""}
-                  onChange={(e) =>
-                    updateExperience(index, "end_date", e.target.value)
-                  }
-                  className="px-3 py-2 text-sm rounded-lg disabled:bg-gray-100"
-                  disabled={experience.is_current}
-                />
+                <div>
+                  <input
+                    type="month"
+                    value={experience.end_date || ""}
+                    onChange={(e) =>
+                      updateExperience(index, "end_date", e.target.value)
+                    }
+                    onBlur={() => handleBlur(index, "end_date")}
+                    className={`${getInputClassName(index, "end_date")} disabled:bg-gray-100`}
+                    disabled={experience.is_current}
+                  />
+                  {renderError(index, "end_date")}
+                </div>
               </div>
 
               <label className="flex items-center gap-2">
@@ -183,15 +234,27 @@ const ExperienceForm = ({ data, onChange }) => {
                   </button>
                 </div>
 
-                <textarea
-                  value={experience.description || ""}
-                  onChange={(e) =>
-                    updateExperience(index, "description", e.target.value)
-                  }
-                  rows={4}
-                  className="w-full text-sm px-3 py-2 rounded-lg resize-none"
-                  placeholder="Describe your job responsibilities and achievements"
-                ></textarea>
+                <div>
+                  <textarea
+                    value={experience.description || ""}
+                    onChange={(e) =>
+                      updateExperience(index, "description", e.target.value)
+                    }
+                    onBlur={() => handleBlur(index, "description")}
+                    rows={4}
+                    className={`w-full text-sm px-3 py-2 rounded-lg resize-none border outline-none focus:ring focus:ring-blue-500 ${
+                      touched[`${index}-description`] &&
+                      errors[`${index}-description`]
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
+                    placeholder="Describe your job responsibilities and achievements"
+                  ></textarea>
+                  {renderError(index, "description")}
+                  <p className="text-xs text-gray-400 text-right">
+                    {(experience.description || "").length}/2000
+                  </p>
+                </div>
               </div>
             </div>
           ))}

@@ -1,15 +1,23 @@
+import { useState } from "react";
 import { Plus, Sparkles, X } from "lucide-react";
-import React, { useState } from "react";
+import { validateSkill } from "../utils/validation";
 
 const SkillsForm = ({ data, onChange }) => {
   const [newSkill, setNewSkill] = useState("");
+  const [error, setError] = useState("");
 
   const addSkill = () => {
-    if (newSkill.trim() && !data.includes(newSkill.trim())) {
-      onChange([...data, newSkill.trim()]);
-      setNewSkill("");
+    const validationError = validateSkill(newSkill, data);
+    if (validationError) {
+      setError(validationError);
+      return;
     }
+
+    onChange([...data, newSkill.trim()]);
+    setNewSkill("");
+    setError("");
   };
+
   const removeSkill = (indexToRemove) => {
     onChange(data.filter((_, i) => i !== indexToRemove));
   };
@@ -20,6 +28,12 @@ const SkillsForm = ({ data, onChange }) => {
       addSkill();
     }
   };
+
+  const handleChange = (e) => {
+    setNewSkill(e.target.value);
+    if (error) setError("");
+  };
+
   return (
     <div className="space-y-4">
       <div>
@@ -31,24 +45,34 @@ const SkillsForm = ({ data, onChange }) => {
         </p>
       </div>
 
-      <div className="flex gap-2">
-        <input
-          type="text"
-          placeholder="Add a skill.."
-          value={newSkill}
-          onChange={(e) => setNewSkill(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="flex-1 px-3 py-2 text-sm rounded-lg"
-        />
+      <div>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Add a skill.."
+            value={newSkill}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            maxLength={50}
+            className={`flex-1 px-3 py-2 text-sm rounded-lg border outline-none focus:ring focus:ring-blue-500 ${
+              error ? "border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
+          />
 
-        <button
-          onClick={addSkill}
-          disabled={!newSkill.trim()}
-          className="flex items-center justify-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed "
-        >
-          <Plus className="size-4" /> Add
-        </button>
+          <button
+            onClick={addSkill}
+            disabled={!newSkill.trim() || data.length >= 30}
+            className="flex items-center justify-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Plus className="size-4" /> Add
+          </button>
+        </div>
+        {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+        <p className="text-xs text-gray-400 mt-1 text-right">
+          {data.length}/30 skills
+        </p>
       </div>
+
       {data.length > 0 ? (
         <div className="flex flex-wrap gap-2">
           {data.map((skill, index) => (

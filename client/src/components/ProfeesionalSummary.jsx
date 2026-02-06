@@ -1,14 +1,25 @@
-import { Sparkle, Sparkles } from "lucide-react";
-import React from "react";
+import { useState } from "react";
+import { Sparkles, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
 import api from "../configs/api.js";
+import { validateProfessionalSummary } from "../utils/validation";
 
 const ProfeesionalSummary = ({ data, onChange, setResumeData }) => {
   const { token } = useSelector((state) => state.auth);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleChange = (value) => {
+    onChange(value);
+
+    const validationError = validateProfessionalSummary(value);
+    if (validationError) {
+      setError(validationError);
+    } else {
+      setError("");
+    }
+  };
 
   const generateSummary = async () => {
     if (!data || data.trim() === "") {
@@ -39,12 +50,16 @@ const ProfeesionalSummary = ({ data, onChange, setResumeData }) => {
       setIsGenerating(false);
     }
   };
+
+  const charCount = (data || "").length;
+  const isOverLimit = charCount > 500;
+
   return (
     <div className="space-y-4">
       <div className="flex item-center justify-between">
         <div>
           <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-            Profeesional Summary
+            Professional Summary
           </h3>
           <p className="text-sm text-gray-500">
             Add a short summary of your professional experience and skills.
@@ -53,7 +68,7 @@ const ProfeesionalSummary = ({ data, onChange, setResumeData }) => {
         <button
           disabled={isGenerating}
           onClick={generateSummary}
-          className="flex items-center gap-2 px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover: bg-purple-200 transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors disabled:opacity-50"
         >
           {isGenerating ? (
             <Loader2 className="size-4 animate-spin" />
@@ -68,16 +83,29 @@ const ProfeesionalSummary = ({ data, onChange, setResumeData }) => {
         <textarea
           rows={7}
           value={data || ""}
-          onChange={(e) => onChange(e.target.value)}
-          name=""
-          id=""
-          className="w-full p-3 px-4 mt-2 border text-sm border-gray-300 rounded-lg focus:border-blue-500 outline-none transition-colors resize-none"
+          onChange={(e) => handleChange(e.target.value)}
+          maxLength={600}
+          className={`w-full p-3 px-4 mt-2 border text-sm rounded-lg focus:border-blue-500 outline-none transition-colors resize-none ${
+            isOverLimit
+              ? "border-red-500 focus:border-red-500"
+              : "border-gray-300"
+          }`}
           placeholder="Write a compelling professional summary of your skills and experience..."
         ></textarea>
-        <p className="text-xs text-gray-500 max-w-4/5 mx-auto text-center">
-          Keep it concise and focused on your key achievements and
-          qualifications.
-        </p>
+        <div className="flex justify-between items-center mt-1">
+          {error ? (
+            <p className="text-red-500 text-xs">{error}</p>
+          ) : (
+            <p className="text-xs text-gray-500">
+              Keep it concise and focused on your key achievements.
+            </p>
+          )}
+          <p
+            className={`text-xs ${isOverLimit ? "text-red-500" : "text-gray-400"}`}
+          >
+            {charCount}/500
+          </p>
+        </div>
       </div>
     </div>
   );

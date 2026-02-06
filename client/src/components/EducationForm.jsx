@@ -1,7 +1,15 @@
-import { GraduationCap,Plus,Trash } from "lucide-react";
-import React from "react";
+import { useState } from "react";
+import { GraduationCap, Plus, Trash } from "lucide-react";
+import {
+  validateEducation,
+  stripNumbers,
+  stripLetters,
+} from "../utils/validation";
 
 const EducationForm = ({ data, onChange }) => {
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
   const addEducation = () => {
     const newEducation = {
       institute: "",
@@ -11,6 +19,9 @@ const EducationForm = ({ data, onChange }) => {
       gpa: "",
     };
     onChange([...data, newEducation]);
+    // Reset errors for new entry
+    setErrors({});
+    setTouched({});
   };
 
   const removeEducation = (index) => {
@@ -19,9 +30,53 @@ const EducationForm = ({ data, onChange }) => {
   };
 
   const updateEducation = (index, field, value) => {
+    // Filter input based on field type
+    let filteredValue = value;
+    if (
+      field === "institute" ||
+      field === "degree" ||
+      field === "field_of_study"
+    ) {
+      filteredValue = stripNumbers(value);
+    } else if (field === "gpa") {
+      filteredValue = stripLetters(value);
+    }
+
     const updated = [...data];
-    updated[index] = { ...updated[index], [field]: value };
+    updated[index] = { ...updated[index], [field]: filteredValue };
     onChange(updated);
+
+    // Clear error when user starts typing
+    const errorKey = `${index}-${field}`;
+    if (errors[errorKey]) {
+      setErrors((prev) => ({ ...prev, [errorKey]: "" }));
+    }
+  };
+
+  const handleBlur = (index, field) => {
+    const errorKey = `${index}-${field}`;
+    setTouched((prev) => ({ ...prev, [errorKey]: true }));
+
+    const validationErrors = validateEducation(data[index]);
+    if (validationErrors[field]) {
+      setErrors((prev) => ({ ...prev, [errorKey]: validationErrors[field] }));
+    }
+  };
+
+  const getInputClassName = (index, field) => {
+    const errorKey = `${index}-${field}`;
+    const hasError = touched[errorKey] && errors[errorKey];
+    return `px-3 py-2 text-sm border rounded-lg outline-none focus:ring focus:ring-blue-500 ${
+      hasError ? "border-red-500 focus:ring-red-500" : "border-gray-300"
+    }`;
+  };
+
+  const renderError = (index, field) => {
+    const errorKey = `${index}-${field}`;
+    if (touched[errorKey] && errors[errorKey]) {
+      return <p className="text-red-500 text-xs mt-1">{errors[errorKey]}</p>;
+    }
+    return null;
   };
 
   return (
@@ -35,7 +90,7 @@ const EducationForm = ({ data, onChange }) => {
         </div>
         <button
           onClick={addEducation}
-          className="flex items-center gap-2 px-3 py-1 text-sm bg-green-100 text-green-700 rounded-lg hover: bg-green-200 transition-colors "
+          className="flex items-center gap-2 px-3 py-1 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
         >
           <Plus className="size-4" />
           Add Education
@@ -64,55 +119,74 @@ const EducationForm = ({ data, onChange }) => {
                 </button>
               </div>
               <div className="grid md:grid-cols-2 gap-3">
-                <input
-                  type="text"
-                  value={education.institute || ""}
-                  onChange={(e) =>
-                    updateEducation(index, "institute", e.target.value)
-                  }
-                  className="px-3 py-2 text-sm "
-                  placeholder="Institute Name"
-                />
+                <div>
+                  <input
+                    type="text"
+                    value={education.institute || ""}
+                    onChange={(e) =>
+                      updateEducation(index, "institute", e.target.value)
+                    }
+                    onBlur={() => handleBlur(index, "institute")}
+                    className={getInputClassName(index, "institute")}
+                    placeholder="Institute Name *"
+                  />
+                  {renderError(index, "institute")}
+                </div>
 
-                <input
-                  type="text"
-                  value={education.degree || ""}
-                  onChange={(e) =>
-                    updateEducation(index, "degree", e.target.value)
-                  }
-                  className="px-3 py-2 text-sm "
-                  placeholder="Degree"
-                />
+                <div>
+                  <input
+                    type="text"
+                    value={education.degree || ""}
+                    onChange={(e) =>
+                      updateEducation(index, "degree", e.target.value)
+                    }
+                    onBlur={() => handleBlur(index, "degree")}
+                    className={getInputClassName(index, "degree")}
+                    placeholder="Degree *"
+                  />
+                  {renderError(index, "degree")}
+                </div>
 
-                <input
-                  type="text"
-                  value={education.field_of_study || ""}
-                  onChange={(e) =>
-                    updateEducation(index, "field_of_study", e.target.value)
-                  }
-                  className="px-3 py-2 text-sm "
-                  placeholder="Field of Study"
-                />
+                <div>
+                  <input
+                    type="text"
+                    value={education.field_of_study || ""}
+                    onChange={(e) =>
+                      updateEducation(index, "field_of_study", e.target.value)
+                    }
+                    onBlur={() => handleBlur(index, "field_of_study")}
+                    className={getInputClassName(index, "field_of_study")}
+                    placeholder="Field of Study"
+                  />
+                  {renderError(index, "field_of_study")}
+                </div>
 
-                
-                <input
-                  type="date"
-                  value={education.graduation_date || ""}
-                  onChange={(e) =>
-                    updateEducation(index, "graduation_date", e.target.value)
-                  }
-                  className="px-3 py-2 text-sm "
-                  placeholder="Graduation Date"
-                />
+                <div>
+                  <input
+                    type="date"
+                    value={education.graduation_date || ""}
+                    onChange={(e) =>
+                      updateEducation(index, "graduation_date", e.target.value)
+                    }
+                    className={getInputClassName(index, "graduation_date")}
+                    placeholder="Graduation Date"
+                  />
+                </div>
               </div>
 
-              <input
-                type="text"
-                value={education.gpa || ""}
-                onChange={(e) => updateEducation(index, "gpa", e.target.value)}
-                className="px-3 py-2 text-sm "
-                placeholder="GPA (if available)"
-              />
+              <div>
+                <input
+                  type="text"
+                  value={education.gpa || ""}
+                  onChange={(e) =>
+                    updateEducation(index, "gpa", e.target.value)
+                  }
+                  onBlur={() => handleBlur(index, "gpa")}
+                  className={getInputClassName(index, "gpa")}
+                  placeholder="GPA (e.g., 3.5 or 8.5)"
+                />
+                {renderError(index, "gpa")}
+              </div>
             </div>
           ))}
         </div>

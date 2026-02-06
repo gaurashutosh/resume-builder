@@ -1,4 +1,12 @@
-import { Mail, Phone, MapPin, Linkedin, Globe, GithubIcon, Briefcase } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Linkedin,
+  Globe,
+  GithubIcon,
+  Briefcase,
+} from "lucide-react";
 
 const ClassicTemplate = ({ data, accentColor }) => {
   const formatDate = (dateStr) => {
@@ -47,22 +55,52 @@ const ClassicTemplate = ({ data, accentColor }) => {
             </div>
           )}
           {data.personal_info?.linkedin && (
-            <div className="flex items-center gap-1">
+            <a
+              href={
+                data.personal_info.linkedin.startsWith("http")
+                  ? data.personal_info.linkedin
+                  : `https://${data.personal_info.linkedin}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 hover:underline"
+              style={{ color: accentColor }}
+            >
               <Linkedin className="size-4" />
-              <span className="break-all">{data.personal_info.linkedin}</span>
-            </div>
+              <span>LinkedIn</span>
+            </a>
           )}
           {data.personal_info?.github && (
-            <div className="flex items-center gap-1">
+            <a
+              href={
+                data.personal_info.github.startsWith("http")
+                  ? data.personal_info.github
+                  : `https://${data.personal_info.github}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 hover:underline"
+              style={{ color: accentColor }}
+            >
               <GithubIcon className="size-4" />
-              <span className="break-all">{data.personal_info.github}</span>
-            </div>
+              <span>GitHub</span>
+            </a>
           )}
           {data.personal_info?.website && (
-            <div className="flex items-center gap-1">
+            <a
+              href={
+                data.personal_info.website.startsWith("http")
+                  ? data.personal_info.website
+                  : `https://${data.personal_info.website}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 hover:underline"
+              style={{ color: accentColor }}
+            >
               <Globe className="size-4" />
-              <span className="break-all">{data.personal_info.website}</span>
-            </div>
+              <span>Website</span>
+            </a>
           )}
         </div>
       </header>

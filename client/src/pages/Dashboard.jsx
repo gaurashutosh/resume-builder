@@ -6,7 +6,7 @@ import {
   Upload,
   UploadCloudIcon,
   XIcon,
-  Loader2Icon
+  Loader2Icon,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -73,6 +73,32 @@ const Dashboard = () => {
 
   const uploadResume = async (e) => {
     e.preventDefault();
+
+    // Validate title
+    if (!title.trim()) {
+      toast.error("Please enter a resume title");
+      return;
+    }
+
+    // Validate file is selected
+    if (!resume) {
+      toast.error("Please select a resume file to upload");
+      return;
+    }
+
+    // Validate file type (PDF only for pdfToText)
+    if (!resume.name.toLowerCase().endsWith(".pdf")) {
+      toast.error("Please upload a PDF file");
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (resume.size > maxSize) {
+      toast.error("File size must be less than 10MB");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const resumeText = await pdfToText(resume);
@@ -95,6 +121,7 @@ const Dashboard = () => {
           error.message ||
           "Something went wrong",
       );
+    } finally {
       setIsLoading(false);
     }
   };

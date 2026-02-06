@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../configs/api";
 import { login } from "../app/features/authSlice";
 import { GoogleLogin } from "@react-oauth/google";
+import { isValidEmail, stripNumbers } from "../utils/validation";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -14,6 +15,8 @@ const Login = () => {
   const urlState = query.get("state");
   const [state, setState] = React.useState(urlState || "login");
   const [isLoading, setIsLoading] = React.useState(false);
+  const [errors, setErrors] = React.useState({});
+  const [touched, setTouched] = React.useState({});
 
   const [formData, setFormData] = React.useState({
     name: "",
@@ -21,25 +24,53 @@ const Login = () => {
     password: "",
   });
 
+  // Validate a single field
+  const validateField = (name, value) => {
+    switch (name) {
+      case "name":
+        if (!value?.trim()) return "Name is required";
+        if (value.trim().length < 2)
+          return "Name must be at least 2 characters";
+        return "";
+      case "email":
+        if (!value?.trim()) return "Email is required";
+        if (!isValidEmail(value)) return "Please enter a valid email";
+        return "";
+      case "password":
+        if (!value) return "Password is required";
+        if (value.length < 6) return "Password must be at least 6 characters";
+        return "";
+      default:
+        return "";
+    }
+  };
+
+  // Validate all fields
+  const validateForm = () => {
+    const newErrors = {};
+    if (state !== "login") {
+      newErrors.name = validateField("name", formData.name);
+    }
+    newErrors.email = validateField("email", formData.email);
+    newErrors.password = validateField("password", formData.password);
+
+    // Filter out empty errors
+    const filteredErrors = Object.fromEntries(
+      Object.entries(newErrors).filter(([_, v]) => v),
+    );
+    setErrors(filteredErrors);
+    return Object.keys(filteredErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Prevent double submission
     if (isLoading) return;
 
-    // Basic validation
-    if (!formData.email || !formData.password) {
-      toast.error("Email and password are required");
-      return;
-    }
-
-    if (state !== "login" && !formData.name?.trim()) {
-      toast.error("Name is required for registration");
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      toast.error("Password must be at least 6 characters long");
+    // Validate all fields
+    if (!validateForm()) {
+      toast.error("Please fix the errors before submitting");
       return;
     }
 
@@ -122,7 +153,34 @@ const Login = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Filter name field to prevent numbers
+    let filteredValue = value;
+    if (name === "name") {
+      filteredValue = stripNumbers(value);
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: filteredValue }));
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    const error = validateField(name, value);
+    if (error) {
+      setErrors((prev) => ({ ...prev, [name]: error }));
+    }
+  };
+
+  // Helper for input styling
+  const getInputClassName = (fieldName, baseClass) => {
+    const hasError = touched[fieldName] && errors[fieldName];
+    return `${baseClass} ${hasError ? "border-red-500 ring-1 ring-red-500" : ""}`;
   };
 
   return (
@@ -158,44 +216,80 @@ const Login = () => {
         </div>
 
         {state !== "login" && (
-          <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
-            <User2Icon size={16} color="#6B7280" />
-            <input
-              type="text"
-              name="name"
-              placeholder="Name"
-              className="border-none outline-none ring-0"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
+          <div className="mt-4">
+            <div
+              className={`flex items-center w-full bg-white border h-12 rounded-full overflow-hidden pl-6 gap-2 ${touched.name && errors.name ? "border-red-500" : "border-gray-300/80"}`}
+            >
+              <User2Icon
+                size={16}
+                color={touched.name && errors.name ? "#EF4444" : "#6B7280"}
+              />
+              <input
+                type="text"
+                name="name"
+                placeholder="Name"
+                className="border-none outline-none ring-0 flex-1"
+                value={formData.name}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              />
+            </div>
+            {touched.name && errors.name && (
+              <p className="text-red-500 text-xs mt-1 text-left pl-6">
+                {errors.name}
+              </p>
+            )}
           </div>
         )}
-        <div
-          className={`flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2 ${state !== "login" ? "mt-4" : ""}`}
-        >
-          <Mail size={16} color="#6B7280" />
-          <input
-            type="email"
-            name="email"
-            placeholder="Email id"
-            className="border-none outline-none ring-0"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
+        <div className={`mt-4`}>
+          <div
+            className={`flex items-center w-full bg-white border h-12 rounded-full overflow-hidden pl-6 gap-2 ${touched.email && errors.email ? "border-red-500" : "border-gray-300/80"}`}
+          >
+            <Mail
+              size={16}
+              color={touched.email && errors.email ? "#EF4444" : "#6B7280"}
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email id"
+              className="border-none outline-none ring-0 flex-1"
+              value={formData.email}
+              onChange={handleChange}
+              onBlur={handleBlur}
+            />
+          </div>
+          {touched.email && errors.email && (
+            <p className="text-red-500 text-xs mt-1 text-left pl-6">
+              {errors.email}
+            </p>
+          )}
         </div>
-        <div className="flex items-center mt-4 w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
-          <Lock size={16} color="#6B7280" />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            className="border-none outline-none ring-0"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
+        <div className="mt-4">
+          <div
+            className={`flex items-center w-full bg-white border h-12 rounded-full overflow-hidden pl-6 gap-2 ${touched.password && errors.password ? "border-red-500" : "border-gray-300/80"}`}
+          >
+            <Lock
+              size={16}
+              color={
+                touched.password && errors.password ? "#EF4444" : "#6B7280"
+              }
+            />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              className="border-none outline-none ring-0 flex-1"
+              value={formData.password}
+              onChange={handleChange}
+              onBlur={handleBlur}
+            />
+          </div>
+          {touched.password && errors.password && (
+            <p className="text-red-500 text-xs mt-1 text-left pl-6">
+              {errors.password}
+            </p>
+          )}
         </div>
         <div className="mt-4 text-left text-indigo-500">
           <button className="text-sm" type="button">
