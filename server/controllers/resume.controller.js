@@ -131,21 +131,25 @@ const updateResume = asyncHandler(async (req, res) => {
 
     // Apply transformations via URL
     // ImageKit URL format: https://ik.imagekit.io/<your_id>/path/to/image.png
-    // With transformation: https://ik.imagekit.io/<your_id>/tr:w-400,h-400,fo-auto,e-remove-bg/path/to/image.png
+    // With transformation: https://ik.imagekit.io/<your_id>/tr:w-400,h-400,fo-auto/path/to/image.png
     let finalUrl = response.url;
 
     // Build transformation string
+    // Note: e-bgremove is ImageKit's own background removal (more affordable)
+    // e-removedotbg uses remove.bg API (premium)
     let transformations = "tr:w-400,h-400,fo-auto";
     if (removeBackground === "yes") {
-      transformations += ",e-remove-bg";
-      console.log("Background removal transformation applied");
+      transformations += ",e-bgremove";
+      console.log("Background removal transformation applied: e-bgremove");
     }
 
     // Insert transformation into URL
-    // URL structure: https://ik.imagekit.io/ID/folder/file.png
-    // Need to insert tr:... after the ID part
+    // URL structure: https://ik.imagekit.io/ID/user-resumes/file.png
+    // Need to insert tr:... before /user-resumes/
     const urlParts = response.url.split("/user-resumes/");
     if (urlParts.length === 2) {
+      // Ensure we add the transformation correctly
+      // Result: https://ik.imagekit.io/ID/tr:w-400,h-400,fo-auto,e-bgremove/user-resumes/file.png
       finalUrl =
         urlParts[0] + "/" + transformations + "/user-resumes/" + urlParts[1];
     }
