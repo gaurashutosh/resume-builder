@@ -1,4 +1,4 @@
-import { Check, Layout } from "lucide-react";
+import { Check, Layout, Sparkles } from "lucide-react";
 import React, { useState, useRef, useEffect } from "react";
 
 const TemplateSelector = ({ selectedTemplate, onChange }) => {
@@ -11,24 +11,29 @@ const TemplateSelector = ({ selectedTemplate, onChange }) => {
       id: "classic",
       name: "Classic",
       preview:
-        "A clean traditional resume format with clear sections and professional typography",
+        "Traditional layout with professional typography for conservative industries.",
+      accent: "from-blue-500 to-indigo-600",
     },
     {
       id: "modern",
       name: "Modern",
       preview:
-        "A modern and professional resume with a clean and modern design",
+        "A sleek, high-end design with profile image support and premium spacing.",
+      accent: "from-green-500 to-emerald-600",
     },
     {
       id: "minimal",
       name: "Minimal",
-      preview: "A minimalistic resume with a clean and modern design",
+      preview:
+        "Clean, whitespace-focused design for a clutter-free professional look.",
+      accent: "from-slate-700 to-slate-900",
     },
     {
       id: "minimal-image",
-      name: "Minimal Image",
+      name: "Minimalist + Photo",
       preview:
-        "A minimalistic resume with an image and a clean and modern design",
+        "Combines the minimal aesthetic with a prominent personal profile photo.",
+      accent: "from-purple-500 to-pink-600",
     },
   ];
 
@@ -36,7 +41,7 @@ const TemplateSelector = ({ selectedTemplate, onChange }) => {
     if (isOpen && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
       setDropdownPos({
-        top: rect.bottom + 8,
+        top: rect.bottom + 12,
         left: rect.left,
       });
     }
@@ -47,23 +52,31 @@ const TemplateSelector = ({ selectedTemplate, onChange }) => {
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 text-sm text-blue-600 bg-gradient-to-br from-blue-50 to-blue-100 hover:ring transition-all duration-300 px-3 py-2 rounded-lg"
+        className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:border-green-500 hover:text-green-600 transition-all duration-300 px-4 py-2.5 rounded-xl shadow-sm active:scale-95"
       >
-        <Layout size={14} />
-        <span className="max-sm:hidden">Select Template</span>
+        <Layout size={16} />
+        <span className="hidden sm:inline uppercase tracking-widest">
+          Select Template
+        </span>
       </button>
+
       {isOpen && (
         <>
-          {/* Full screen backdrop - highest z-index */}
           <div
-            className="fixed inset-0 z-[9998] bg-black/10"
+            className="fixed inset-0 z-[9998] bg-slate-900/5 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
           />
-          {/* Fixed dropdown - escapes all stacking contexts */}
           <div
-            className="fixed w-72 bg-white p-3 space-y-3 z-[9999] rounded-xl border border-gray-200 shadow-2xl max-h-80 overflow-y-auto"
+            className="fixed w-80 bg-white/95 backdrop-blur-xl p-4 space-y-3 z-[9999] rounded-[2rem] border border-slate-200 shadow-2xl max-h-[450px] overflow-y-auto animate-in fade-in zoom-in-95 duration-200"
             style={{ top: dropdownPos.top, left: dropdownPos.left }}
           >
+            <div className="flex items-center gap-2 px-2 pb-2 mb-2 border-b border-slate-100">
+              <Sparkles size={16} className="text-green-500" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                Choose a Layout
+              </span>
+            </div>
+
             {templates.map((template) => (
               <button
                 key={template.id}
@@ -71,21 +84,32 @@ const TemplateSelector = ({ selectedTemplate, onChange }) => {
                   onChange(template.id);
                   setIsOpen(false);
                 }}
-                className={`relative p-3 border rounded-lg cursor-pointer transition-all duration-300 w-full text-left ${selectedTemplate === template.id ? "bg-blue-50 border-blue-300 ring-2 ring-blue-200" : "border-gray-200 hover:border-blue-300 hover:bg-blue-50/50"}`}
+                className={`group relative p-4 border rounded-2xl cursor-pointer transition-all duration-300 w-full text-left overflow-hidden ${
+                  selectedTemplate === template.id
+                    ? "bg-green-50 border-green-200 ring-2 ring-green-100"
+                    : "bg-white border-slate-100 hover:border-green-200 hover:bg-green-50/30"
+                }`}
               >
+                {/* Visual Accent */}
+                <div
+                  className={`absolute top-0 left-0 w-1 h-full bg-gradient-to-b ${template.accent} opacity-0 group-hover:opacity-100 transition-opacity`}
+                />
+
                 {selectedTemplate === template.id && (
-                  <div className="absolute top-2 right-2">
-                    <div className="size-5 bg-blue-500 rounded-full flex items-center justify-center shadow-sm">
+                  <div className="absolute top-4 right-4 animate-in zoom-in spin-in-90 duration-300">
+                    <div className="size-5 bg-green-600 rounded-full flex items-center justify-center shadow-lg shadow-green-900/20">
                       <Check className="w-3 h-3 text-white" />
                     </div>
                   </div>
                 )}
 
-                <div className="space-y-1">
-                  <h4 className="font-semibold text-gray-800">
+                <div className="relative">
+                  <h4
+                    className={`font-bold transition-colors ${selectedTemplate === template.id ? "text-green-800" : "text-slate-800"}`}
+                  >
                     {template.name}
                   </h4>
-                  <p className="text-xs text-gray-500 leading-relaxed">
+                  <p className="text-[11px] text-slate-500 font-medium leading-relaxed mt-1 pr-6">
                     {template.preview}
                   </p>
                 </div>

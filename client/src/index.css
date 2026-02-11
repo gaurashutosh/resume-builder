@@ -1,19 +1,94 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 
-*{
-  font-family: "Inter", sans-serif;
+:root {
+  --primary: #22c55e;
+  --primary-dark: #15803d;
+  --bg-main: #ffffff;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --transition-base: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@layer base{
-  button{
+* {
+  font-family: "Poppins", sans-serif;
+  scroll-behavior: smooth;
+}
+
+@layer base {
+  body {
+    @apply text-slate-900 bg-white;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold;
+    text-wrap: balance;
+  }
+
+  button {
     cursor: pointer;
+    @apply transition-all duration-200;
   }
-  input:not([type="checkbox"]){
-    @apply outline-none focus:ring border border-gray-300 focus:ring-blue-500 focus:border-blue-500 rounded-lg;
+
+  /* Improved Focus States according to guidelines */
+  :focus-visible {
+    @apply outline-none ring-2 ring-green-500 ring-offset-2;
   }
-  textarea{
-    @apply outline-none focus:ring border border-gray-300 focus:ring-blue-500 focus:border-blue-500 rounded-lg resize-none;
+
+  input:not([type="checkbox"]),
+  textarea {
+    @apply outline-none border border-gray-300 transition-all duration-200;
+    @apply focus:ring-2 focus:ring-green-500 focus:border-green-500 rounded-lg;
+  }
+
+  input:not([type="checkbox"]) {
+    @apply h-10 px-3;
+  }
+
+  textarea {
+    @apply p-3 resize-none;
   }
 }
 
+@layer utilities {
+  .glass {
+    @apply bg-white/80 backdrop-blur-md border border-white/20;
+  }
+
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+
+  .animate-marquee-reverse {
+    animation: marquee-reverse 30s linear infinite;
+  }
+
+  .hover-pause:hover {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-reverse {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}

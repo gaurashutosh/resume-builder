@@ -1,60 +1,85 @@
-import React from 'react'
-import { Zap } from 'lucide-react'
-import Title from './Title'
+import React from "react";
+import { Zap, Shield, Rocket, Layout } from "lucide-react";
+import Title from "./Title";
+
 const Features = () => {
-    const [isHover, setIsHover] = React.useState(false);
+  return (
+    <section
+      id="features"
+      className="flex flex-col items-center my-24 scroll-mt-24 px-4 md:px-0"
+    >
+      <div className="flex items-center gap-2 text-sm font-semibold text-green-700 bg-green-100 rounded-full px-6 py-2 mb-4">
+        <Zap size={16} fill="currentColor" />
+        <span className="uppercase tracking-wider">The Process</span>
+      </div>
 
-    return (
-        <div id='features' className="flex flex-col items-center my-10 scroll-mt-12" >
-            
-            <div className="flex items-center gap-2 text-sm text-green-600 bg-green-400/10 rounded-full px-6 py-1.5">
-            <Zap width={14}/>
-            <span>Simple Process</span>
+      <Title
+        title="Build Your Resume in Minutes"
+        description="Our intuitive platform simplifies professional resume creation, helping you focus on your career story while we handle the design."
+      />
+
+      <div className="flex flex-col lg:flex-row items-center justify-center gap-12 mt-16 max-w-7xl mx-auto">
+        <div className="relative group lg:w-1/2">
+          <div className="absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl opacity-10 blur-2xl group-hover:opacity-20 transition-opacity"></div>
+          <img
+            className="relative rounded-2xl shadow-2xl border border-slate-200 transition-transform duration-500 group-hover:scale-[1.02]"
+            src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/features/group-image-1.png"
+            alt="Resume builder interface preview"
+            width={672}
+            height={400}
+            loading="lazy"
+          />
         </div>
 
-        <Title title="Build Your Resume in Minutes" description="Create a professional resume in minutes with our easy-to-use resume builder." />
-
-            <div className="flex flex-col md:flex-row items-center justify-center xl:margin-top-20">
-                <img className="max-w-2xl w-full xl:-ml-32" src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/features/group-image-1.png" alt="" />
-                <div className="px-4 md:px-0" onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
-                    <div className={"flex items-center justify-center gap-6 max-w-md group cursor-pointer"}>
-                        <div className={`p-6 group-hover:bg-violet-100 border border-transparent group-hover:border-violet-300  flex gap-4 rounded-xl transition-colors ${!isHover ? 'border-violet-300 bg-violet-100' : ''}`}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-6 stroke-violet-600"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" /><circle cx="16.5" cy="7.5" r=".5" fill="currentColor" /></svg>
-                            <div className="space-y-2">
-                                <h3 className="text-base font-semibold text-slate-700">Secure</h3>
-                                <p className="text-sm text-slate-600 max-w-xs">Your data is secure with our security features.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex items-center justify-center gap-6 max-w-md group cursor-pointer">
-                        <div className="p-6 group-hover:bg-green-100 border border-transparent group-hover:border-green-300 flex gap-4 rounded-xl transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-6 stroke-green-600"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" /></svg>
-                            <div className="space-y-2">
-                                <h3 className="text-base font-semibold text-slate-700">ATS Optimized</h3>
-                                <p className="text-sm text-slate-600 max-w-xs">Our resumes are optimized for Applicant Tracking Systems (ATS) to ensure your resume gets seen by recruiters.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex items-center justify-center gap-6 max-w-md group cursor-pointer">
-                        <div className="p-6 group-hover:bg-orange-100 border border-transparent group-hover:border-orange-300 flex gap-4 rounded-xl transition-colors">
-                            <svg className="size-6 stroke-orange-600" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 15V3" /><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m7 10 5 5 5-5" /></svg>
-                            <div className="space-y-2">
-                                <h3 className="text-base font-semibold text-slate-700">Variety of Templates</h3>
-                                <p className="text-sm text-slate-600 max-w-xs">Choose from a variety of professional templates and create a resume that stands out.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div className="flex flex-col gap-6 lg:w-1/2 max-w-md">
+          <div className="p-6 bg-white hover:bg-slate-50 border border-slate-100 hover:border-violet-200 rounded-2xl shadow-sm hover:shadow-md transition-all group flex gap-5 cursor-default">
+            <div className="flex-shrink-0 p-3 bg-violet-50 text-violet-600 rounded-xl group-hover:bg-violet-600 group-hover:text-white transition-colors">
+              <Shield size={24} />
             </div>
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-            
-                * {
-                    font-family: 'Poppins', sans-serif;
-                }
-            `}</style>
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 mb-1">
+                Privacy-First Design
+              </h3>
+              <p className="text-slate-600 leading-relaxed">
+                Your professional data is encrypted and yours alone. We
+                prioritize security at every step.
+              </p>
+            </div>
+          </div>
+
+          <div className="p-6 bg-white hover:bg-slate-50 border border-slate-100 hover:border-green-200 rounded-2xl shadow-sm hover:shadow-md transition-all group flex gap-5 cursor-default">
+            <div className="flex-shrink-0 p-3 bg-green-50 text-green-600 rounded-xl group-hover:bg-green-600 group-hover:text-white transition-colors">
+              <Rocket size={24} />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 mb-1">
+                ATS-Optimized Export
+              </h3>
+              <p className="text-slate-600 leading-relaxed">
+                Land more interviews with resumes specifically formatted to pass
+                through tracking systems flawlessly.
+              </p>
+            </div>
+          </div>
+
+          <div className="p-6 bg-white hover:bg-slate-50 border border-slate-100 hover:border-orange-200 rounded-2xl shadow-sm hover:shadow-md transition-all group flex gap-5 cursor-default">
+            <div className="flex-shrink-0 p-3 bg-orange-50 text-orange-600 rounded-xl group-hover:bg-orange-600 group-hover:text-white transition-colors">
+              <Layout size={24} />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 mb-1">
+                Modern Templates
+              </h3>
+              <p className="text-slate-600 leading-relaxed">
+                Choose from a curated collection of designer templates that
+                reflect your personal brand.
+              </p>
+            </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 };
 
-export default Features
+export default Features;

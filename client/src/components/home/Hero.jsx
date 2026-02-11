@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const Hero = () => {
-  const {user} = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
   const [menuOpen, setMenuOpen] = React.useState(false);
 
   const companiesLogo = [
@@ -126,10 +126,7 @@ const Hero = () => {
             <a href="#features" className="hover:text-green-600 transition">
               Features
             </a>
-            <a
-              href="#testimonials"
-              className="hover:text-green-600 transition"
-            >
+            <a href="#testimonials" className="hover:text-green-600 transition">
               Testimonials
             </a>
             <a href="#cta" className="hover:text-green-600 transition">
@@ -137,32 +134,39 @@ const Hero = () => {
             </a>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-4">
             <Link
               to="/app?state=register"
-              className="hidden md:block px-6 py-2 bg-green-500 hover:bg-green-700 active:scale-95 transition-all rounded-full text-white"
+              className="hidden md:block px-8 py-2.5 bg-green-600 hover:bg-green-700 active:scale-95 transition-all rounded-full text-white font-medium shadow-sm hover:shadow-md"
               hidden={user}
             >
-              Get started
+              Get Started
             </Link>
             <Link
               to="/app?state=login"
-              className="hidden md:block px-6 py-2 border active:scale-95 hover:bg-slate-50 transition-all rounded-full text-slate-700 hover:text-slate-900"
+              className="hidden md:block px-8 py-2.5 border border-slate-200 active:scale-95 hover:bg-slate-50 transition-all rounded-full text-slate-700 hover:text-slate-900 font-medium"
               hidden={user}
             >
               Login
             </Link>
-            <Link to="/app" className="hidden md:block px-8 py-2 bg-green-500 hover:bg-green-700 active:scale-95 transition-all rounded-full text-white" hidden={!user}>Dashboard</Link>
+            <Link
+              to="/app"
+              className="hidden md:block px-8 py-2.5 bg-green-600 hover:bg-green-700 active:scale-95 transition-all rounded-full text-white font-medium shadow-sm hover:shadow-md"
+              hidden={!user}
+            >
+              Dashboard
+            </Link>
           </div>
 
           <button
             onClick={() => setMenuOpen(true)}
-            className="md:hidden active:scale-90 transition"
+            className="md:hidden p-2 -mr-2 active:scale-95 transition text-slate-700 hover:text-green-600 rounded-lg focus-visible:ring-2 focus-visible:ring-green-500"
+            aria-label="Open mobile menu"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="26"
-              height="26"
+              width="28"
+              height="28"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
@@ -173,28 +177,78 @@ const Hero = () => {
           </button>
         </nav>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu Overlay */}
         <div
-          className={`fixed inset-0 z-[100] bg-black/40 text-black backdrop-blur flex flex-col items-center justify-center text-lg gap-8 md:hidden transition-transform duration-300 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}
+          className={`fixed inset-0 z-[100] bg-slate-900/95 backdrop-blur-md flex flex-col items-center justify-center text-2xl gap-8 md:hidden transition-all duration-300 ${menuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"}`}
         >
-          <a href="#" className="text-white">
-            Home
-          </a>
-          <a href="#features" className="text-white">
-            Features
-          </a>
-          <a href="#testimonials" className="text-white">
-            Testimonials
-          </a>
-          <a href="#contact" className="text-white">
-            Contact
-          </a>
           <button
             onClick={() => setMenuOpen(false)}
-            className="active:ring-3 active:ring-white aspect-square size-10 p-1 items-center justify-center bg-green-600 hover:bg-green-700 transition text-white rounded-md flex"
+            className="absolute top-6 right-6 p-3 text-white/70 hover:text-white transition-colors"
+            aria-label="Close mobile menu"
           >
-            X
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
           </button>
+
+          <Link
+            to="/"
+            onClick={() => setMenuOpen(false)}
+            className="text-white hover:text-green-400 transition-colors font-medium"
+          >
+            Home
+          </Link>
+          <a
+            href="#features"
+            onClick={() => setMenuOpen(false)}
+            className="text-white hover:text-green-400 transition-colors font-medium"
+          >
+            Features
+          </a>
+          <a
+            href="#testimonials"
+            onClick={() => setMenuOpen(false)}
+            className="text-white hover:text-green-400 transition-colors font-medium"
+          >
+            Testimonials
+          </a>
+          <a
+            href="#cta"
+            onClick={() => setMenuOpen(false)}
+            className="text-white hover:text-green-400 transition-colors font-medium"
+          >
+            Contact
+          </a>
+
+          <div className="flex flex-col gap-4 mt-8 w-full px-10">
+            <Link
+              to="/app?state=register"
+              onClick={() => setMenuOpen(false)}
+              className="w-full text-center py-4 bg-green-600 text-white rounded-full font-semibold"
+              hidden={user}
+            >
+              Get Started
+            </Link>
+            <Link
+              to="/app?state=login"
+              onClick={() => setMenuOpen(false)}
+              className="w-full text-center py-4 border border-white/20 text-white rounded-full font-semibold"
+              hidden={user}
+            >
+              Login
+            </Link>
+          </div>
         </div>
 
         {/* Hero Section */}
@@ -259,43 +313,53 @@ const Hero = () => {
           </div>
 
           {/* Headline + CTA */}
-          <h1 className="text-5xl md:text-6xl font-semibold max-w-5xl text-center mt-4 md:leading-[70px]">
-           Land your dream job with {" "}
-            <span className=" bg-gradient-to-r from-green-700 to-green-600 bg-clip-text text-transparent text-nowrap">
-              AI Powered{" "}
+          <h1 className="text-5xl md:text-7xl font-bold max-w-5xl text-center mt-6 md:leading-[1.15] tracking-tight">
+            Land your dream job with{" "}
+            <span className="bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent">
+              AI Powered
             </span>{" "}
             Resumes.
           </h1>
 
-          <p className="max-w-md text-center text-base my-7">
-            Create, edit and download professional resume with AI-powered assistance.
+          <p className="max-w-xl text-center text-lg md:text-xl text-slate-600 mt-6 leading-relaxed">
+            Create, edit and download professional resumes with industry-leading
+            AI assistance. Optimized for ATS and recruiters.
           </p>
 
-          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 mt-10">
+            <Link
+              to="/app?state=register"
+              className="px-10 py-4 bg-green-600 hover:bg-green-700 text-white rounded-full font-semibold shadow-lg shadow-green-200 hover:shadow-xl hover:-translate-y-0.5 transition-all text-lg"
+              hidden={user}
+            >
+              Build My Resume Now
+            </Link>
+            {user && (
+              <Link
+                to="/app"
+                className="px-10 py-4 bg-green-600 hover:bg-green-700 text-white rounded-full font-semibold shadow-lg shadow-green-200 hover:shadow-xl hover:-translate-y-0.5 transition-all text-lg"
+              >
+                Go to Dashboard
+              </Link>
+            )}
+          </div>
 
-          <p className="py-6 text-slate-600 mt-14">
-            Trusting by leading brands, including
+          <p className="text-slate-400 font-medium uppercase tracking-widest text-xs mt-24 mb-8">
+            Trusted by candidates at leading brands
           </p>
 
           <div
-            className="flex flex-wrap justify-between max-sm:justify-center gap-6 max-w-3xl w-full mx-auto py-4"
+            className="flex flex-wrap justify-center items-center gap-x-12 gap-y-8 max-w-5xl w-full mx-auto py-4 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
             id="logo-container"
           >
             {companiesLogo.map((company, index) => (
-              <React.Fragment key={index}>{company.logo}</React.Fragment>
+              <div key={index} className="flex items-center justify-center">
+                {company.logo}
+              </div>
             ))}
           </div>
         </div>
       </div>
-      <style>
-        {`
-                    @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
-                    * {
-                        font-family: 'Poppins', sans-serif;
-                    }
-                `}
-      </style>
     </>
   );
 };

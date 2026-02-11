@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Sparkles, X } from "lucide-react";
+import { Plus, Sparkles, X, Lightbulb, CheckCircle2 } from "lucide-react";
 import { validateSkill } from "../utils/validation";
 
 const SkillsForm = ({ data, onChange }) => {
@@ -35,78 +35,104 @@ const SkillsForm = ({ data, onChange }) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
       <div>
-        <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-          Skills
-        </h3>
-        <p className="text-sm text-gray-500">
-          Add your technical and soft skills
+        <h3 className="text-xl font-bold text-slate-900">Skills</h3>
+        <p className="text-sm text-slate-500 font-medium">
+          Highlight your core competencies and technical expertise.
         </p>
       </div>
 
-      <div>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Add a skill.."
-            value={newSkill}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-            maxLength={50}
-            className={`flex-1 px-3 py-2 text-sm rounded-lg border outline-none focus:ring focus:ring-blue-500 ${
-              error ? "border-red-500 focus:ring-red-500" : "border-gray-300"
-            }`}
-          />
+      <div className="bg-white border border-slate-200 rounded-[2rem] p-6 md:p-8 space-y-6 shadow-sm">
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 text-xs font-bold text-slate-700 uppercase tracking-wider px-1">
+            <Plus size={14} className="text-slate-400" />
+            Add New Skill
+          </label>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder="e.g. React.js, Project Management, Figma.."
+                value={newSkill}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                maxLength={50}
+                className={`w-full px-5 py-3.5 bg-slate-50 border rounded-2xl focus:ring-4 focus:ring-green-500/10 focus:border-green-500 outline-none transition-all text-sm font-semibold placeholder:text-slate-400 ${
+                  error ? "border-red-500 ring-red-500/10" : "border-slate-100"
+                }`}
+              />
+              {error && (
+                <p className="text-red-500 text-[10px] font-bold mt-1 px-2 uppercase tracking-tight">
+                  {error}
+                </p>
+              )}
+            </div>
 
-          <button
-            onClick={addSkill}
-            disabled={!newSkill.trim() || data.length >= 30}
-            className="flex items-center justify-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Plus className="size-4" /> Add
-          </button>
-        </div>
-        {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-        <p className="text-xs text-gray-400 mt-1 text-right">
-          {data.length}/30 skills
-        </p>
-      </div>
-
-      {data.length > 0 ? (
-        <div className="flex flex-wrap gap-2">
-          {data.map((skill, index) => (
-            <span
-              key={index}
-              className="flex items-center gap-2 px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-full"
+            <button
+              onClick={addSkill}
+              disabled={!newSkill.trim() || data.length >= 30}
+              className="px-8 py-3.5 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-black transition-all shadow-lg active:scale-95 disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-2"
             >
-              {skill}
-              <button
-                onClick={() => removeSkill(index)}
-                className="ml-1 hover:bg-blue-200 rounded-full p-0.5 transition-colors"
-              >
-                <X className="size-4" />
-              </button>
-            </span>
-          ))}
+              Add Skill
+            </button>
+          </div>
+          <div className="flex items-center justify-between px-2">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              Maximum 30 skills
+            </p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              {data.length} / 30
+            </p>
+          </div>
         </div>
-      ) : (
-        <div className="text-center py-6 text-gray-500">
-          <Sparkles className="w-10 h-10 mx-auto mb-2 text-gray-300" />
-          <p className="text-sm font-medium text-gray-900">
-            No skills added yet
-          </p>
-          <p className="text-xs text-gray-500">
-            Add your skills to get started
-          </p>
-        </div>
-      )}
 
-      <div className="bg-blue-50 p-3 rounded-lg">
-        <p className="text-xs text-blue-800">
-          <strong>Tip:</strong> Add 8-10 skills, including technical skills,
-          soft skills, and tools you are proficient in.
-        </p>
+        {data.length > 0 ? (
+          <div className="pt-4 border-t border-slate-100">
+            <div className="flex flex-wrap gap-2.5">
+              {data.map((skill, index) => (
+                <div
+                  key={index}
+                  className="group flex items-center gap-2 px-4 py-2 text-sm font-bold bg-green-50 text-green-700 rounded-xl border border-green-100/50 hover:bg-green-100 hover:border-green-200 transition-all cursor-default animate-in zoom-in duration-300"
+                >
+                  <CheckCircle2 size={14} className="text-green-500" />
+                  {skill}
+                  <button
+                    onClick={() => removeSkill(index)}
+                    className="ml-1 p-0.5 text-green-300 group-hover:text-green-600 hover:bg-green-200 rounded-lg transition-all"
+                    aria-label={`Remove ${skill}`}
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="pt-8 pb-4 text-center">
+            <div className="size-16 bg-slate-50 rounded-3xl flex items-center justify-center text-slate-200 mx-auto mb-4">
+              <Sparkles size={32} />
+            </div>
+            <p className="text-sm font-bold text-slate-400">
+              Your skills list is empty. Start typing above!
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="bg-green-50/50 border border-green-100 p-4 rounded-2xl flex gap-3 items-start">
+        <div className="p-2 bg-green-100 rounded-xl text-green-700">
+          <Lightbulb size={18} />
+        </div>
+        <div className="space-y-1">
+          <p className="text-[11px] font-black uppercase text-green-800 tracking-wider">
+            Pro Tip
+          </p>
+          <p className="text-sm text-green-700 font-medium leading-relaxed">
+            Include a mix of 8-12 technical skills, soft skills, and industry
+            tools to boost your match rate with HR software.
+          </p>
+        </div>
       </div>
     </div>
   );

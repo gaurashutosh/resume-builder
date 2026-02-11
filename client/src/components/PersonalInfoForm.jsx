@@ -9,6 +9,7 @@ import {
   Github,
   Globe,
   Sparkles,
+  Camera,
 } from "lucide-react";
 import {
   validatePersonalInfo,
@@ -25,24 +26,16 @@ const PersonalInfoForm = ({
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
-  // Fields that should not contain numbers (text only)
   const textOnlyFields = ["full_name", "location", "profession"];
 
   const handleChange = (field, value) => {
     let filteredValue = value;
-
-    // Filter numbers from text-only fields
     if (textOnlyFields.includes(field)) {
       filteredValue = stripNumbers(value);
-    }
-    // Filter phone input to only allow valid phone characters
-    else if (field === "phone") {
+    } else if (field === "phone") {
       filteredValue = stripNonPhone(value);
     }
-
     onChange({ ...data, [field]: filteredValue });
-
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
@@ -66,6 +59,14 @@ const PersonalInfoForm = ({
       icon: User,
       type: "text",
       required: true,
+      placeholder: "e.g. John Doe",
+    },
+    {
+      key: "profession",
+      label: "Profession",
+      icon: BriefcaseBusiness,
+      type: "text",
+      placeholder: "e.g. Senior Frontend Developer",
     },
     {
       key: "email",
@@ -73,6 +74,7 @@ const PersonalInfoForm = ({
       icon: Mail,
       type: "email",
       required: true,
+      placeholder: "e.g. john@example.com",
     },
     {
       key: "phone",
@@ -80,113 +82,148 @@ const PersonalInfoForm = ({
       icon: Phone,
       type: "tel",
       required: true,
+      placeholder: "e.g. +1 234 567 890",
     },
-    { key: "location", label: "Location", icon: MapPin, type: "text" },
     {
-      key: "profession",
-      label: "Profession",
-      icon: BriefcaseBusiness,
+      key: "location",
+      label: "Location",
+      icon: MapPin,
       type: "text",
+      placeholder: "e.g. New York, USA",
     },
-    { key: "linkedin", label: "LinkedIn", icon: Linkedin, type: "url" },
-    { key: "github", label: "GitHub", icon: Github, type: "url" },
-    { key: "website", label: "Personal Website", icon: Globe, type: "url" },
+    {
+      key: "linkedin",
+      label: "LinkedIn",
+      icon: Linkedin,
+      type: "url",
+      placeholder: "URL to LinkedIn profile",
+    },
+    {
+      key: "github",
+      label: "GitHub",
+      icon: Github,
+      type: "url",
+      placeholder: "URL to GitHub profile",
+    },
+    {
+      key: "website",
+      label: "Portfolio",
+      icon: Globe,
+      type: "url",
+      placeholder: "Link to your website",
+    },
   ];
 
   return (
-    <div>
-      <h3 className="text-lg font-semibold text-gray-900">
-        Personal Information
-      </h3>
-      <p className="text-sm text-gray-600">
-        Get started by adding your personal information
-      </p>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div>
+        <h3 className="text-xl font-bold text-slate-900">Personal Details</h3>
+        <p className="text-sm text-slate-500 font-medium">
+          This information will be displayed prominently at the top of your
+          resume.
+        </p>
+      </div>
 
-      <div className="flex items-center gap-6 mt-5 bg-slate-50 p-3 rounded-xl border border-dashed border-slate-200">
-        <label className="relative cursor-pointer group">
-          {data.image ? (
-            <div className="relative">
-              <img
-                src={
-                  typeof data.image === "string"
-                    ? data.image
-                    : URL.createObjectURL(data.image)
-                }
-                alt="user-image"
-                className="w-16 h-16 rounded-full object-cover ring-2 ring-white shadow-md group-hover:opacity-90 transition-all"
-              />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="text-[10px] text-white font-bold">CHANGE</span>
+      <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200">
+        <div className="flex flex-col sm:flex-row items-center gap-8">
+          <label className="relative cursor-pointer group">
+            {data.image ? (
+              <div className="relative">
+                <img
+                  src={
+                    typeof data.image === "string"
+                      ? data.image
+                      : URL.createObjectURL(data.image)
+                  }
+                  alt="Profile"
+                  className="size-24 rounded-2xl object-cover ring-4 ring-white shadow-xl group-hover:opacity-90 transition-all border border-slate-100"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Camera className="text-white" size={20} />
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="w-16 h-16 rounded-full border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 hover:border-blue-400 hover:text-blue-500 transition-all">
-              <User className="size-6" />
-              <span className="text-[8px] font-bold mt-1 uppercase tracking-tighter">
-                Upload
-              </span>
-            </div>
-          )}
-          <input
-            type="file"
-            accept="image/jpeg,image/jpg,image/png"
-            onChange={(e) => handleChange("image", e.target.files[0])}
-            className="hidden"
-          />
-        </label>
-
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-slate-700">
-              Remove Background
-            </span>
-            <div className="bg-purple-100 text-purple-600 text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
-              <Sparkles className="size-2.5" />
-              AI
-            </div>
-          </div>
-          <label className="relative inline-flex items-center cursor-pointer">
+            ) : (
+              <div className="size-24 rounded-2xl bg-white border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 hover:border-green-500 hover:text-green-600 transition-all hover:bg-green-50 shadow-sm">
+                <Camera size={32} className="mb-1" />
+                <span className="text-[10px] font-bold uppercase tracking-wider">
+                  Photo
+                </span>
+              </div>
+            )}
             <input
-              type="checkbox"
-              className="peer sr-only"
-              checked={removeBackground}
-              onChange={() => setRemoveBackground((prev) => !prev)}
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleChange("image", e.target.files[0])}
+              className="hidden"
             />
-            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600 shadow-inner"></div>
-            <span className="ms-3 text-xs font-medium text-slate-500">
-              {removeBackground ? "Enabled" : "Disabled"}
-            </span>
           </label>
+
+          <div className="flex-1 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-slate-700">
+                  Remove Background
+                </span>
+                <div className="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                  <Sparkles size={10} fill="currentColor" />
+                  AI MAGIC
+                </div>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="peer sr-only"
+                  checked={removeBackground}
+                  onChange={() => setRemoveBackground((prev) => !prev)}
+                />
+                <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+              </label>
+            </div>
+            <p className="text-xs text-slate-500 leading-relaxed font-medium">
+              Automatically isolate your portrait for a professional,
+              distraction-free headshot. Best for resumes.
+            </p>
+          </div>
         </div>
       </div>
-      {fields.map((field) => {
-        const Icon = field.icon;
-        const hasError = touched[field.key] && errors[field.key];
-        return (
-          <div key={field.key} className="space-y-1 mt-5">
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-600">
-              <Icon className="size-4" />
-              {field.label}
-              {field.required && <span className="text-red-500">*</span>}
-            </label>
-            <input
-              type={field.type}
-              value={data[field.key] || ""}
-              onChange={(e) => handleChange(field.key, e.target.value)}
-              onBlur={() => handleBlur(field.key)}
-              className={`mt-1 w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm ${
-                hasError
-                  ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                  : "border-gray-300"
-              }`}
-              placeholder={`Enter your ${field.label.toLowerCase()}`}
-            />
-            {hasError && (
-              <p className="text-red-500 text-xs mt-1">{errors[field.key]}</p>
-            )}
-          </div>
-        );
-      })}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
+        {fields.map((field) => {
+          const Icon = field.icon;
+          const hasError = touched[field.key] && errors[field.key];
+          return (
+            <div
+              key={field.key}
+              className={`space-y-1.5 ${field.key === "full_name" || field.key === "profession" ? "md:col-span-2" : ""}`}
+            >
+              <label className="flex items-center gap-2 text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <Icon size={14} className="text-slate-400" />
+                {field.label}
+                {field.required && <span className="text-red-500">*</span>}
+              </label>
+              <div className="relative">
+                <input
+                  type={field.type}
+                  value={data[field.key] || ""}
+                  onChange={(e) => handleChange(field.key, e.target.value)}
+                  onBlur={() => handleBlur(field.key)}
+                  className={`w-full px-4 py-3 bg-white border rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all text-sm font-medium ${
+                    hasError
+                      ? "border-red-500 ring-red-500/10"
+                      : "border-slate-200"
+                  }`}
+                  placeholder={field.placeholder}
+                />
+              </div>
+              {hasError && (
+                <p className="text-red-500 text-[10px] font-bold mt-1 px-1 uppercase tracking-tight">
+                  {errors[field.key]}
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

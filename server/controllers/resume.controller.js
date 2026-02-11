@@ -114,10 +114,6 @@ const updateResume = asyncHandler(async (req, res) => {
 
   // Image upload handling
   if (image) {
-    console.log("=== IMAGE UPLOAD START ===");
-    console.log("File path:", image.path);
-    console.log("removeBackground parameter:", removeBackground);
-
     const imageBufferData = fs.createReadStream(image.path);
 
     // Upload the original image first
@@ -127,7 +123,6 @@ const updateResume = asyncHandler(async (req, res) => {
       folder: "user-resumes",
     });
 
-    console.log("ImageKit Upload Success. Original URL:", response.url);
 
     // Apply transformations via URL
     // ImageKit URL format: https://ik.imagekit.io/<your_id>/path/to/image.png
@@ -135,12 +130,9 @@ const updateResume = asyncHandler(async (req, res) => {
     let finalUrl = response.url;
 
     // Build transformation string
-    // Note: e-bgremove is ImageKit's own background removal (more affordable)
-    // e-removedotbg uses remove.bg API (premium)
     let transformations = "tr:w-400,h-400,fo-auto";
     if (removeBackground === "yes") {
       transformations += ",e-bgremove";
-      console.log("Background removal transformation applied: e-bgremove");
     }
 
     // Insert transformation into URL
@@ -154,20 +146,11 @@ const updateResume = asyncHandler(async (req, res) => {
         urlParts[0] + "/" + transformations + "/user-resumes/" + urlParts[1];
     }
 
-    console.log("Final URL with transformations:", finalUrl);
-
-    // Ensure personal_info exists
     if (!updatePayload.personal_info) {
       updatePayload.personal_info = {};
     }
     updatePayload.personal_info.image = finalUrl;
-    console.log("=== IMAGE UPLOAD END ===");
   }
-
-  console.log(
-    "Updating Resume with Payload:",
-    JSON.stringify(updatePayload, null, 2),
-  );
 
   const resume = await Resume.findOneAndUpdate(
     { _id: resumeId, userId },
